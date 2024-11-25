@@ -1,0 +1,25 @@
+{
+  "name": "slainte-app",
+  "version": "1.0.0",
+  "description": "Una aplicación de ejemplo de Next.js",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "framer-motion": "^6.0.0",
+    "lucide-react": "^0.0.0",
+    "next": "^13.5.7",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "22.9.4",
+    "typescript": "5.7.2"
+  }
+}
