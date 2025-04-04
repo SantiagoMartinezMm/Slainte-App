@@ -1,0 +1,20 @@
+---
+import Layout from '../layouts/Layout.astro'
+import SignInForm from '../components/auth/SignInForm.tsx' // Añadida extensión .tsx
+import { createServerClient } from '../lib/supabase'
+
+// Verificar si ya está autenticado
+const supabase = createServerClient(Astro.cookies)
+const { data: { session } } = await supabase.auth.getSession()
+
+// Si ya está autenticado, redirigir al dashboard
+if (session) {
+  return Astro.redirect('/dashboard')
+}
+---
+
+<Layout title="Sign In">
+  <div class="min-h-screen flex items-center justify-center">
+    <SignInForm client:load transition:persist />
+  </div>
+</Layout>

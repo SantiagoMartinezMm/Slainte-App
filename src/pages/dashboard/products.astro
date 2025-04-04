@@ -1,0 +1,12 @@
+---
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import ProductList from '@/components/products/ProductList';
+import { Toaster } from 'react-hot-toast';
+---
+
+<DashboardLayout title="Gestión de Productos">
+  <div class="container mx-auto px-4 py-8">
+    <Toaster client:load position="top-right" />
+    <ProductList client:load />
+  </div>
+</DashboardLayout>

@@ -1,0 +1,138 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import { protectDashboard } from '../../middleware/dashboard';
+import { createServerClient } from '../../lib/supabase';
+
+// Proteger la ruta
+const authResult = await protectDashboard(Astro);
+if (authResult !== true) {
+  return authResult;
+}
+
+// Obtener información del usuario
+const supabase = createServerClient();
+const { data: { session } } = await supabase.auth.getSession();
+const userEmail = session?.user?.email;
+
+// Obtener estadísticas
+const [profileStats, productStats, categoryStats] = await Promise.all([
+  supabase
+    .from('profiles')
+    .select('role', { count: 'exact' })
+    .eq('role', 'customer'),
+  supabase
+    .from('products')
+    .select('*', { count: 'exact' }),
+  supabase
+    .from('categories')
+    .select('*', { count: 'exact' })
+]);
+
+const totalCustomers = profileStats?.data?.length || 0;
+const totalProducts = productStats?.data?.length || 0;
+const totalCategories = categoryStats?.data?.length || 0;
+---
+
+<DashboardLayout>
+  <h1 slot="header">Dashboard</h1>
+  
+  <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <!-- Card de Clientes -->
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg class="h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="truncate text-sm font-medium text-gray-500">Total Clientes</dt>
+              <dd class="mt-1">
+                <div class="text-lg font-medium text-gray-900">{totalCustomers}</div>
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-5 py-3">
+        <div class="text-sm">
+          <a href="/dashboard/customers" class="font-medium text-cyan-700 hover:text-cyan-900">
+            Ver todos los clientes
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card de Productos -->
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg class="h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="truncate text-sm font-medium text-gray-500">Total Productos</dt>
+              <dd class="mt-1">
+                <div class="text-lg font-medium text-gray-900">{totalProducts}</div>
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-5 py-3">
+        <div class="text-sm">
+          <a href="/dashboard/products" class="font-medium text-cyan-700 hover:text-cyan-900">
+            Ver todos los productos
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card de Categorías -->
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg class="h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="truncate text-sm font-medium text-gray-500">Total Categorías</dt>
+              <dd class="mt-1">
+                <div class="text-lg font-medium text-gray-900">{totalCategories}</div>
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-5 py-3">
+        <div class="text-sm">
+          <a href="/dashboard/categories" class="font-medium text-cyan-700 hover:text-cyan-900">
+            Ver todas las categorías
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</DashboardLayout>
+
+<script>
+  // Manejar el cierre de sesión
+  document.querySelector('button')?.addEventListener('click', async () => {
+    try {
+      const response = await fetch('/api/auth/signout', { method: 'POST' });
+      if (response.ok) {
+        window.location.href = '/signin';
+      }
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  });
+</script>

@@ -1,0 +1,29 @@
+---
+// src/components/forms/Form.astro
+import type { HTMLAttributes } from 'astro/types';
+
+// Extiende HTMLAttributes para <form>
+interface Props extends HTMLAttributes<'form'> {
+  class?: string;
+  // Props adicionales podrían incluir:
+  // onSubmit?: (formData: FormData) => void; // Manejador de envío personalizado
+  // validationSchema?: any; // Esquema para validación (e.g., Zod)
+}
+
+const {
+  class: className,
+  // onSubmit, // Se manejará con script del lado del cliente si es necesario
+  ...props // Resto de props van al form (method, action, etc.)
+} = Astro.props;
+
+// No se necesitan estilos base específicos para el form en sí,
+// el espaciado se maneja en los campos individuales (Input, Select, etc.)
+---
+
+<form
+  class:list={[className]}
+  novalidate
+  {...props}
+>
+  <slot /> {/* Aquí irían los Input, Select, Checkbox, RadioGroup, etc. */}
+</form>

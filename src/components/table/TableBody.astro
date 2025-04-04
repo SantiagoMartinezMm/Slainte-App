@@ -1,0 +1,23 @@
+---
+// src/components/table/TableBody.astro
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'tbody'> {
+  class?: string;
+}
+
+const { class: className, ...props } = Astro.props;
+
+// No se necesitan estilos base específicos para tbody por ahora,
+// pero se mantiene la estructura por consistencia.
+---
+
+<tbody
+  class:list={[
+    className
+    // Podrían añadirse clases base si fueran necesarias en el futuro
+  ]}
+  {...props}
+>
+  <slot />
+</tbody>

@@ -1,0 +1,23 @@
+---
+// src/components/table/TableHeader.astro
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'thead'> {
+  class?: string;
+}
+
+const { class: className, ...props } = Astro.props;
+
+// Estilos base para el encabezado de la tabla
+const baseStyles = "text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400";
+---
+
+<thead
+  class:list={[
+    baseStyles,
+    className
+  ]}
+  {...props}
+>
+  <slot />
+</thead>

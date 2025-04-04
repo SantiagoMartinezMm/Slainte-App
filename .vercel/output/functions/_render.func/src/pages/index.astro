@@ -1,0 +1,83 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DrinkCard from '../components/DrinkCard';
+import CategoryFilter from '../components/CategoryFilter';
+import PromotionCard from '../components/PromotionCard';
+
+const categories = ['Todos', 'Cocteles', 'Cervezas', 'Vinos', 'Sin Alcohol'];
+
+const drinks = [
+  {
+    name: 'Margarita Clásica',
+    description: 'Tequila, triple sec, jugo de limón fresco',
+    price: 12.99,
+    image: 'https://images.unsplash.com/photo-1632789395770-20e6f63be806?w=500',
+    alcohol: 12,
+    category: 'Cocteles'
+  },
+  {
+    name: 'Mojito Cubano',
+    description: 'Ron blanco, menta fresca, lima, azúcar',
+    price: 10.99,
+    image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=500',
+    alcohol: 10,
+    category: 'Cocteles'
+  },
+  {
+    name: 'IPA Artesanal',
+    description: 'Cerveza India Pale Ale con notas cítricas',
+    price: 8.99,
+    image: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=500',
+    alcohol: 6.5,
+    category: 'Cervezas'
+  }
+];
+
+const promotions = [
+  {
+    title: 'Happy Hour',
+    discount: '50',
+    image: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=500'
+  },
+  {
+    title: '2x1 en Cocteles',
+    discount: '40',
+    image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=500'
+  }
+];
+---
+
+<Layout title="Bar Menu - Descubre nuestras bebidas">
+  <main class="min-h-screen bg-secondary p-4 md:p-8">
+    <header class="mb-8">
+      <h1 class="text-4xl font-bold text-white mb-2">Descubre</h1>
+      <p class="text-gray-400">Nuestras mejores bebidas</p>
+    </header>
+
+    <CategoryFilter
+      client:load
+      categories={categories}
+      activeCategory="Todos"
+      onCategoryChange={(category) => console.log(category)}
+    />
+
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-8">
+      {drinks.map((drink) => (
+        <DrinkCard {...drink} />
+      ))}
+    </section>
+
+    <section class="mt-12">
+      <h2 class="text-2xl font-bold text-white mb-4">Promociones</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {promotions.map((promo) => (
+          <PromotionCard {...promo} />
+        ))}
+      </div>
+    </section>
+  </main>
+</Layout>
+</boltArtifact>
+
+<boltAction type="start">
+<command>npm run dev</command>

@@ -1,0 +1,12 @@
+---
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import CategoryList from '@/components/categories/CategoryList';
+import { Toaster } from 'react-hot-toast';
+---
+
+<DashboardLayout title="Gestión de Categorías">
+  <div class="container mx-auto px-4 py-8">
+    <Toaster client:load position="top-right" />
+    <CategoryList client:load />
+  </div>
+</DashboardLayout>

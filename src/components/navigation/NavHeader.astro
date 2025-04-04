@@ -1,0 +1,26 @@
+---
+// src/components/navigation/NavHeader.astro
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'li'> {
+  title: string;
+  class?: string;
+}
+
+const { title, class: className, ...props } = Astro.props;
+
+// Estilos para el encabezado del grupo de navegación
+const baseStyles = "px-2 pt-4 pb-2 text-xs font-semibold text-gray-500 uppercase dark:text-gray-400";
+// Nota: El NavGroup.astro ya aplica un padding-top (pt-4) y border-top.
+// Ajustar estos estilos si se decide que NavHeader debe controlar todo el espaciado superior.
+---
+
+<li
+  class:list={[
+    baseStyles,
+    className
+  ]}
+  {...props}
+>
+  {title}
+</li>

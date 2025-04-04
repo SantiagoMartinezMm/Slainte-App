@@ -1,0 +1,37 @@
+---
+const { title } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body class="font-sans antialiased bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen">
+    <div class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <img
+          class="mx-auto h-20 w-auto"
+          src="/logo.svg"
+          alt="Slainte Logo"
+        />
+        <h2 class="mt-6 text-center text-3xl font-extrabold text-white">
+          {title}
+        </h2>
+      </div>
+
+      <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-card py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <slot />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+<style is:global>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+</style>

@@ -1,0 +1,12 @@
+---
+// src/components/notifications/ToastProvider.astro
+// Este componente Astro monta el componente React que maneja la lógica del store.
+import ToastContainer from './ToastContainer.tsx'; // Componente React
+---
+
+{/* Posiciona el contenedor de toasts. Ajusta clases según sea necesario (e.g., top-0 end-0, bottom-0 start-0) */}
+<div class="fixed top-0 end-0 p-4 space-y-2 z-[9999]">
+  <ToastContainer client:only="react" /> {/* Monta el componente React solo en el cliente */}
+</div>
+
+export {};

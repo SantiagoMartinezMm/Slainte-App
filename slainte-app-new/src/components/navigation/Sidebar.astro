@@ -1,0 +1,42 @@
+---
+// src/components/navigation/Sidebar.astro
+import type { HTMLAttributes } from 'astro/types';
+// Importar componentes de navegación hijos cuando se creen
+// import NavItem from './NavItem.astro';
+// import NavGroup from './NavGroup.astro';
+
+interface Props extends HTMLAttributes<'aside'> {
+  class?: string;
+  // Props para controlar el estado (abierto/cerrado), responsive, etc.
+  isOpen?: boolean;
+}
+
+const { class: className, isOpen = true, ...props } = Astro.props;
+
+// Estilos base para el sidebar
+// TODO: Implementar estilos responsive y de estado (abierto/cerrado)
+const baseStyles = `w-64 h-screen bg-gray-100 dark:bg-gray-900 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} sm:translate-x-0`; // Ejemplo básico
+---
+
+<aside
+  id="default-sidebar"
+  class:list={[
+    baseStyles,
+    className
+  ]}
+  aria-label="Sidebar"
+  {...props}
+>
+  <div class="h-full px-3 py-4 overflow-y-auto">
+    <ul class="space-y-2 font-medium">
+      <!-- Contenido del Sidebar (NavItem, NavGroup) se añadirá aquí -->
+      <li>
+        <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group">
+          <!-- Icono -->
+          <span class="ms-3">Dashboard (Placeholder)</span>
+        </a>
+      </li>
+      <!-- Más items de ejemplo -->
+    </ul>
+  </div>
+</aside>

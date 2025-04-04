@@ -1,0 +1,42 @@
+---
+// src/components/ExampleForm.astro
+import FormWrapper from './forms/FormHandler.tsx'; // Importar FormHandler (React)
+import Input from './forms/Input.tsx'; // Importar Input (React)
+import Select from './forms/Select.tsx'; // Importar Select (React)
+import Checkbox from './forms/Checkbox.tsx'; // Importar Checkbox (React)
+import RadioGroup from './forms/RadioGroup.tsx'; // Importar RadioGroup (React)
+import { createToast } from '../lib/createToast'; // Importar la función createToast
+
+// Función para manejar el envío del formulario
+const handleSubmit = (data: any) => {
+  console.log('Form Data:', data);
+  createToast('Form submitted successfully!', { variant: 'success' });
+};
+---
+
+<FormWrapper client:load onSubmit={handleSubmit} className="max-w-md mx-auto">
+  <Input client:load label="Nombre" name="name" type="text" required placeholder="Tu nombre" />
+  <Input client:load label="Email" name="email" type="email" placeholder="Tu email" />
+  <Select client:load
+    label="Categoría"
+    name="category"
+    options={[
+      { value: 'coctel', label: 'Coctel' },
+      { value: 'cerveza', label: 'Cerveza' },
+      { value: 'vino', label: 'Vino' },
+    ]}
+    placeholder="Selecciona una categoría"
+  />
+  <Checkbox client:load label="Acepto los términos" name="terms" required />
+  <RadioGroup client:load
+    name="preference"
+    legend="Elige una opción"
+    options={[
+      { value: 'opcion1', label: 'Opción 1' },
+      { value: 'opcion2', label: 'Opción 2' },
+    ]}
+  />
+  <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+    Enviar
+  </button>
+</FormWrapper>

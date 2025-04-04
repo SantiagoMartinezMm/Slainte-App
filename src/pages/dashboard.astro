@@ -1,0 +1,88 @@
+---
+import Layout from '../layouts/Layout.astro'
+import { createServerClient } from '../lib/supabase'
+import { PROJECT_ID } from '../lib/constants'
+import { redirect } from 'astro:redirect';
+import { getCookie } from 'astro:cookies';
+
+interface Props {
+  title: string;
+}
+
+interface Globals {
+  cookies: {
+    get: (name: string) => ({ value: string } | undefined);
+  };
+}
+
+const { cookies } = Astro;
+
+let userEmail: string | undefined = undefined;
+
+// Verificar autenticación
+const supabase = createServerClient(cookies);
+
+// Obtener tokens de las cookies con el nombre correcto
+const accessToken = cookies.get(`sb-${PROJECT_ID}-access-token`)?.value;
+
+if (!accessToken) {
+  // Si no hay sesión, redirigir a la página de inicio de sesión
+  return redirect('/signin');
+}
+
+const { data: { session }, error } = await supabase.auth.getSession({
+  access_token: accessToken,
+});
+
+if (!session) {
+  // Si no hay sesión, redirigir a la página de inicio de sesión
+  return redirect('/signin');
+} else {
+  userEmail = session.user.email;
+}
+---
+
+<Layout title="Dashboard">
+  <div class="min-h-screen font-sans antialiased bg-gradient-to-br from-gray-900 to-gray-800">
+    <main class="container mx-auto px-4 py-8">
+      <div class="bg-card py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-2xl font-bold text-white">
+            Welcome, {userEmail}
+          </h1>
+          <button
+            id="signOutButton"
+            class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors"
+          >
+            Sign Out
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <div class="bg-gray-700 rounded-lg p-4">
+            <h2 class="text-xl font-semibold text-white mb-2">Your Profile</h2>
+            <p class="text-gray-300">Email: {userEmail}</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</Layout>
+
+<script>
+  import { supabase } from '../lib/supabase';
+
+  const signOutButton = document.getElementById('signOutButton');
+
+  if (signOutButton) {
+    signOutButton.addEventListener('click', async () => {
+      try {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+        window.location.replace('/signin');
+      } catch (error) {
+        console.error('Error signing out:', error);
+      }
+    });
+  }
+</script>

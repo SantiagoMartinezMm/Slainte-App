@@ -1,0 +1,29 @@
+---
+// src/pages/examples/table.astro
+import Layout from '../../layouts/Layout.astro';
+import ProductTable from '../../components/examples/ProductTable.astro';
+import ToastProvider from '../../components/notifications/ToastProvider.astro';
+---
+
+<Layout title="Ejemplo de Tabla - Slainte App">
+  <ToastProvider />
+  
+  <main class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Ejemplo de Tabla de Datos</h1>
+    
+    <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+      <p class="text-gray-600 dark:text-gray-300 mb-6">
+        Este es un ejemplo de una tabla de datos con funcionalidades de ordenación y paginación.
+        Puedes hacer clic en los encabezados de columna para ordenar los datos y usar los controles
+        de paginación para navegar entre las páginas.
+      </p>
+      
+      <ProductTable 
+        title="Catálogo de Productos" 
+        initialSortKey="name"
+        initialSortDirection="asc"
+        initialItemsPerPage={5}
+      />
+    </div>
+  </main>
+</Layout>

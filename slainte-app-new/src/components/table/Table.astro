@@ -1,0 +1,40 @@
+---
+// src/components/table/Table.astro
+// Componente base para la tabla, adaptado de component-template.astro
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'table'> {
+  // Props básicas
+  class?: string;
+  id?: string;
+  // Props específicas de la tabla (se añadirán más adelante)
+  // Ejemplo: striped?: boolean;
+  // Ejemplo: hoverable?: boolean;
+}
+
+const {
+  class: className,
+  id,
+  ...props
+} = Astro.props;
+
+// Estilos base (se pueden refinar más adelante)
+const baseStyles = "w-full text-sm text-left text-gray-500 dark:text-gray-400";
+
+// TODO: Añadir variantes de estilo si es necesario (striped, hoverable, bordered)
+---
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+  <table
+    id={id}
+    class:list={[
+      baseStyles,
+      className
+    ]}
+    {...props}
+  >
+    <slot />
+  </table>
+</div>
+
+<!-- TODO: Añadir componente de paginación aquí -->

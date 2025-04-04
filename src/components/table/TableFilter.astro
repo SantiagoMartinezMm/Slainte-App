@@ -1,0 +1,115 @@
+---
+// src/components/table/TableFilter.astro
+// Componente para filtrar datos en la tabla
+import type { HTMLAttributes } from 'astro/types';
+
+interface FilterOption {
+  value: string;
+  label: string;
+}
+
+interface Props extends HTMLAttributes<'div'> {
+  class?: string;
+  filterKey?: string;
+  options?: FilterOption[];
+  currentFilter?: string;
+  placeholder?: string;
+  searchable?: boolean;
+}
+
+const {
+  class: className,
+  filterKey,
+  options = [],
+  currentFilter = '',
+  placeholder = 'Filtrar...',
+  searchable = true,
+  ...props
+} = Astro.props;
+
+// Estilos base para el contenedor de filtro
+const baseStyles = "flex flex-col md:flex-row gap-2 mb-4";
+---
+
+<div
+  class:list={[
+    baseStyles,
+    className
+  ]}
+  data-filter-key={filterKey}
+  {...props}
+>
+  {searchable && (
+    <div class="relative">
+      <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+        </svg>
+      </div>
+      <input
+        type="text"
+        id={`table-search-${filterKey}`}
+        class="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        placeholder={placeholder}
+        value={currentFilter}
+      />
+    </div>
+  )}
+  
+  {options.length > 0 && (
+    <select
+      id={`table-filter-${filterKey}`}
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+    >
+      <option value="">Todos</option>
+      {options.map(option => (
+        <option 
+          value={option.value}
+          selected={currentFilter === option.value}
+        >
+          {option.label}
+        </option>
+      ))}
+    </select>
+  )}
+  
+  <slot />
+</div>
+
+<script define:vars={{ filterKey }}>
+  // Script para manejar eventos de filtrado
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById(`table-search-${filterKey}`);
+    const filterSelect = document.getElementById(`table-filter-${filterKey}`);
+    
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        // Disparar evento personalizado con los datos del filtro
+        const event = new CustomEvent('table-filter-change', {
+          detail: {
+            type: 'search',
+            key: filterKey,
+            value: e.target.value
+          },
+          bubbles: true
+        });
+        searchInput.dispatchEvent(event);
+      });
+    }
+    
+    if (filterSelect) {
+      filterSelect.addEventListener('change', (e) => {
+        // Disparar evento personalizado con los datos del filtro
+        const event = new CustomEvent('table-filter-change', {
+          detail: {
+            type: 'select',
+            key: filterKey,
+            value: e.target.value
+          },
+          bubbles: true
+        });
+        filterSelect.dispatchEvent(event);
+      });
+    }
+  });
+</script>

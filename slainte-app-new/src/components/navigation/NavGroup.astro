@@ -1,0 +1,35 @@
+---
+// src/components/navigation/NavGroup.astro
+import type { HTMLAttributes } from 'astro/types';
+// Podría importar NavHeader si se crea como componente separado
+// import NavHeader from './NavHeader.astro';
+
+interface Props extends HTMLAttributes<'ul'> {
+  title?: string; // Título opcional para el grupo
+  class?: string;
+}
+
+const { title, class: className, ...props } = Astro.props;
+
+// Estilos para el grupo. Podría incluir espaciado o bordes.
+const baseStyles = "mt-4 space-y-2 border-t border-gray-200 dark:border-gray-700 pt-4"; // Ejemplo con separador superior
+const firstGroupStyles = "pt-0 mt-0 border-t-0"; // Para evitar separador en el primer grupo
+---
+
+{/* Aplicar estilos especiales si es el primer grupo (requiere lógica adicional o prop) */}
+<ul
+  class:list={[
+    baseStyles,
+    // TODO: Añadir lógica para detectar si es el primer grupo y aplicar firstGroupStyles
+    className
+  ]}
+  {...props}
+>
+  {title && (
+    // Podría ser un componente NavHeader.astro
+    <li class="px-2 pb-2 text-xs font-semibold text-gray-500 uppercase dark:text-gray-400">
+      {title}
+    </li>
+  )}
+  <slot /> {/* Aquí irían los NavItem */}
+</ul>

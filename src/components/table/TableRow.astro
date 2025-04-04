@@ -1,0 +1,26 @@
+---
+// src/components/table/TableRow.astro
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'tr'> {
+  class?: string;
+  // Podrían añadirse props para estados como hover, selected, etc.
+}
+
+const { class: className, ...props } = Astro.props;
+
+// Estilos base para las filas. Se pueden añadir variantes para hover, etc.
+const baseStyles = "bg-white border-b dark:bg-gray-800 dark:border-gray-700";
+// Ejemplo de estilo hover: "hover:bg-gray-50 dark:hover:bg-gray-600"
+---
+
+<tr
+  class:list={[
+    baseStyles,
+    className
+    // Añadir clases condicionales para hover, etc. si se implementan
+  ]}
+  {...props}
+>
+  <slot />
+</tr>

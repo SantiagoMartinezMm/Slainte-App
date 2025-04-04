@@ -1,0 +1,10 @@
+---
+import Layout from '../layouts/Layout.astro';
+import RegisterForm from '../components/auth/RegisterForm';
+---
+
+<Layout title="Registrarse - Slainte">
+  <main class="min-h-screen bg-gray-50">
+    <RegisterForm client:load />
+  </main>
+</Layout>

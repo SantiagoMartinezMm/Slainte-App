@@ -1,0 +1,26 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import SignInForm from '../../components/auth/SignInForm'
+
+const { url } = Astro
+const error = url.searchParams.get('error')
+---
+
+<Layout title="Sign In - Slainte">
+  <div class="min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="w-full max-w-md space-y-8">
+      <div class="text-center">
+        <h1 class="text-4xl font-bold text-gray-900">Welcome Back</h1>
+        <p class="mt-2 text-gray-600">Sign in to your account to continue</p>
+      </div>
+
+      {error && (
+        <div class="bg-red-50 text-red-600 p-4 rounded-lg">
+          <p>{decodeURIComponent(error)}</p>
+        </div>
+      )}
+
+      <SignInForm client:load />
+    </div>
+  </div>
+</Layout>

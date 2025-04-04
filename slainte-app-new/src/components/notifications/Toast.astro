@@ -1,0 +1,71 @@
+---
+// src/components/notifications/Toast.astro
+import type { HTMLAttributes } from 'astro/types';
+
+// Tipos de notificación para diferentes estilos
+type ToastVariant = 'info' | 'success' | 'warning' | 'error' | 'default';
+
+interface Props extends HTMLAttributes<'div'> {
+  id: string; // ID único para cada toast
+  message: string;
+  variant?: ToastVariant;
+  duration?: number; // Duración en ms antes de desaparecer (0 para persistente)
+  class?: string;
+  // onClose?: (id: string) => void; // Callback para cerrar
+}
+
+const {
+  id,
+  message,
+  variant = 'default',
+  duration = 3000,
+  class: className,
+  // onClose, // Se manejará a través del store probablemente
+  ...props
+} = Astro.props;
+
+// Mapeo de variantes a estilos de Tailwind
+// TODO: Definir los colores y estilos específicos para cada variante
+const variantStyles: Record<ToastVariant, string> = {
+  default: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 border-gray-300',
+  info: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 border-blue-300',
+  success: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-green-300',
+  warning: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 border-yellow-300',
+  error: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 border-red-300',
+};
+
+const baseStyles = "max-w-xs w-full p-4 rounded-lg shadow border flex items-center space-x-3";
+// TODO: Añadir animaciones de entrada/salida
+---
+
+<div
+  role="alert"
+  id={`toast-${id}`}
+  class:list={[
+    baseStyles,
+    variantStyles[variant],
+    className
+  ]}
+  data-duration={duration}
+  {...props}
+>
+  {/* Icono opcional basado en la variante */}
+  {/* <div class="icon-placeholder w-5 h-5"></div> */}
+
+  <div class="text-sm font-normal">{message}</div>
+
+  {/* Botón de cierre opcional */}
+  <button
+    type="button"
+    class="ms-auto -mx-1.5 -my-1.5 bg-transparent text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:hover:bg-gray-700"
+    aria-label="Close"
+    data-dismiss-target={`#toast-${id}`}
+    onclick={`document.getElementById('toast-${id}')?.remove()`}
+  >
+    <span class="sr-only">Close</span>
+    {/* Icono X */}
+    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+    </svg>
+  </button>
+</div>

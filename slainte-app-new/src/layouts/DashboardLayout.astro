@@ -1,0 +1,34 @@
+---
+import Layout from './Layout.astro';
+import { supabase } from '../lib/supabase';
+import Navbar from '../components/dashboard/Navbar';
+
+// Verificar autenticación
+const { data: { session } } = await supabase.auth.getSession()
+
+// Si no hay sesión, redirigir al login
+if (!session) {
+  return Astro.redirect('/login')
+}
+---
+
+<Layout title="Dashboard">
+  <div class="flex h-screen bg-gray-100">
+    {/* Sidebar */}
+    <aside class="w-64 bg-gray-200 p-4">
+      <h1 class="text-2xl font-bold mb-4">Dashboard</h1>
+      {/* Aquí puedes agregar los elementos de navegación del dashboard */}
+    </aside>
+
+    {/* Contenido principal */}
+    <div class="flex-grow flex flex-col">
+      {/* Navbar */}
+      <Navbar />
+
+      {/* Contenido */}
+      <div class="p-4">
+        <slot />
+      </div>
+    </div>
+  </div>
+</Layout>

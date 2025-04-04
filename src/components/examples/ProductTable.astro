@@ -1,0 +1,304 @@
+---
+// src/components/examples/ProductTable.astro
+// Ejemplo de tabla de productos con ordenación y paginación
+import Table from '../table/Table.astro';
+import TableHeader from '../table/TableHeader.astro';
+import TableBody from '../table/TableBody.astro';
+import TableRow from '../table/TableRow.astro';
+import TableCell from '../table/TableCell.astro';
+import TableSortHeader from '../table/TableSortHeader.astro';
+import TablePagination from '../table/TablePagination.astro';
+
+// Definir la interfaz para los productos
+interface Product {
+  id: number;
+  name: string;
+  category: string;
+  price: number;
+  stock: number;
+  createdAt: string;
+}
+
+// Datos de ejemplo
+const products: Product[] = Array.from({ length: 25 }, (_, i) => ({
+  id: i + 1,
+  name: `Producto ${i + 1}`,
+  category: ['Bebidas', 'Cocteles', 'Cervezas', 'Vinos', 'Licores'][Math.floor(Math.random() * 5)],
+  price: parseFloat((Math.random() * 100 + 5).toFixed(2)),
+  stock: Math.floor(Math.random() * 100),
+  createdAt: new Date(Date.now() - Math.floor(Math.random() * 10000000000)).toISOString().split('T')[0]
+}));
+
+// Props para la tabla
+interface Props {
+  title?: string;
+  initialSortKey?: string;
+  initialSortDirection?: 'asc' | 'desc';
+  initialItemsPerPage?: number;
+}
+
+const {
+  title = 'Productos',
+  initialSortKey = 'id',
+  initialSortDirection = 'asc',
+  initialItemsPerPage = 10
+} = Astro.props;
+
+// ID único para la tabla
+const tableId = 'product-table';
+---
+
+<div class="w-full">
+  <h2 class="text-xl font-semibold mb-4">{title}</h2>
+  
+  <div id={tableId} class="relative overflow-x-auto">
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableSortHeader sortable sortKey="id" currentSortKey={initialSortKey} sortDirection={initialSortDirection}>
+            ID
+          </TableSortHeader>
+          <TableSortHeader sortable sortKey="name" currentSortKey={initialSortKey} sortDirection={initialSortDirection}>
+            Nombre
+          </TableSortHeader>
+          <TableSortHeader sortable sortKey="category" currentSortKey={initialSortKey} sortDirection={initialSortDirection}>
+            Categoría
+          </TableSortHeader>
+          <TableSortHeader sortable sortKey="price" currentSortKey={initialSortKey} sortDirection={initialSortDirection}>
+            Precio
+          </TableSortHeader>
+          <TableSortHeader sortable sortKey="stock" currentSortKey={initialSortKey} sortDirection={initialSortDirection}>
+            Stock
+          </TableSortHeader>
+          <TableSortHeader sortable sortKey="createdAt" currentSortKey={initialSortKey} sortDirection={initialSortDirection}>
+            Fecha
+          </TableSortHeader>
+          <TableCell as="th">Acciones</TableCell>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {products.slice(0, initialItemsPerPage).map(product => (
+          <TableRow>
+            <TableCell>{product.id}</TableCell>
+            <TableCell>{product.name}</TableCell>
+            <TableCell>{product.category}</TableCell>
+            <TableCell>${product.price.toFixed(2)}</TableCell>
+            <TableCell>{product.stock}</TableCell>
+            <TableCell>{product.createdAt}</TableCell>
+            <TableCell>
+              <div class="flex space-x-2">
+                <button class="text-blue-500 hover:text-blue-700">
+                  <span class="sr-only">Editar</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button class="text-red-500 hover:text-red-700">
+                  <span class="sr-only">Eliminar</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+    
+    <TablePagination
+      currentPage={1}
+      totalItems={products.length}
+      itemsPerPage={initialItemsPerPage}
+      tableId={tableId}
+    />
+  </div>
+</div>
+
+<script define:vars={{ products, tableId, initialSortKey, initialSortDirection, initialItemsPerPage }}>
+  // Estado de la tabla
+  let state = {
+    sortKey: initialSortKey,
+    sortDirection: initialSortDirection,
+    currentPage: 1,
+    itemsPerPage: initialItemsPerPage,
+    filteredProducts: [...products]
+  };
+
+  // Función para ordenar productos
+  function sortProducts(products, sortKey, sortDirection) {
+    return [...products].sort((a, b) => {
+      let aValue = a[sortKey];
+      let bValue = b[sortKey];
+      
+      // Convertir a números si es posible
+      if (!isNaN(aValue) && !isNaN(bValue)) {
+        aValue = Number(aValue);
+        bValue = Number(bValue);
+      }
+      
+      // Ordenar
+      if (aValue < bValue) {
+        return sortDirection === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortDirection === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }
+
+  // Función para renderizar la tabla
+  function renderTable() {
+    const tableContainer = document.getElementById(tableId);
+    if (!tableContainer) return;
+    
+    // Ordenar productos
+    const sortedProducts = sortProducts(state.filteredProducts, state.sortKey, state.sortDirection);
+    
+    // Calcular productos para la página actual
+    const startIndex = (state.currentPage - 1) * state.itemsPerPage;
+    const endIndex = startIndex + state.itemsPerPage;
+    const currentPageProducts = sortedProducts.slice(startIndex, endIndex);
+    
+    // Actualizar encabezados de ordenación
+    const headers = tableContainer.querySelectorAll('th[data-sort-key]');
+    headers.forEach(header => {
+      const sortKey = header.getAttribute('data-sort-key');
+      const isActive = sortKey === state.sortKey;
+      
+      // Actualizar clases y atributos
+      if (isActive) {
+        header.setAttribute('aria-sort', state.sortDirection === 'asc' ? 'ascending' : 'descending');
+        header.classList.add('bg-gray-100', 'dark:bg-gray-600');
+      } else {
+        header.removeAttribute('aria-sort');
+        header.classList.remove('bg-gray-100', 'dark:bg-gray-600');
+      }
+    });
+    
+    // Actualizar filas de la tabla
+    const tbody = tableContainer.querySelector('tbody');
+    if (tbody) {
+      // Limpiar tbody
+      tbody.innerHTML = '';
+      
+      // Añadir filas actualizadas
+      currentPageProducts.forEach(product => {
+        const row = document.createElement('tr');
+        row.className = 'bg-white border-b dark:bg-gray-800 dark:border-gray-700';
+        
+        row.innerHTML = `
+          <td class="px-6 py-4">${product.id}</td>
+          <td class="px-6 py-4">${product.name}</td>
+          <td class="px-6 py-4">${product.category}</td>
+          <td class="px-6 py-4">$${product.price.toFixed(2)}</td>
+          <td class="px-6 py-4">${product.stock}</td>
+          <td class="px-6 py-4">${product.createdAt}</td>
+          <td class="px-6 py-4">
+            <div class="flex space-x-2">
+              <button class="text-blue-500 hover:text-blue-700">
+                <span class="sr-only">Editar</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+              <button class="text-red-500 hover:text-red-700">
+                <span class="sr-only">Eliminar</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          </td>
+        `;
+        
+        tbody.appendChild(row);
+      });
+    }
+    
+    // Actualizar paginación
+    const paginationNav = tableContainer.nextElementSibling;
+    if (paginationNav && paginationNav.tagName === 'NAV') {
+      // Actualizar texto de rango
+      const rangeText = paginationNav.querySelector('span.text-sm');
+      if (rangeText) {
+        const startItem = Math.min(state.filteredProducts.length, (state.currentPage - 1) * state.itemsPerPage + 1);
+        const endItem = Math.min(state.filteredProducts.length, state.currentPage * state.itemsPerPage);
+        
+        const rangeSpans = rangeText.querySelectorAll('span.font-semibold');
+        if (rangeSpans.length >= 2) {
+          rangeSpans[0].textContent = `${startItem}-${endItem}`;
+          rangeSpans[1].textContent = state.filteredProducts.length.toString();
+        }
+      }
+      
+      // Actualizar botones de página
+      const pageButtons = paginationNav.querySelectorAll('button[data-page]');
+      pageButtons.forEach(button => {
+        const page = parseInt(button.getAttribute('data-page') || '1', 10);
+        
+        // Actualizar estado de botones anterior/siguiente
+        if (button.textContent?.trim() === 'Anterior') {
+          button.disabled = state.currentPage === 1;
+          button.classList.toggle('opacity-50', state.currentPage === 1);
+          button.classList.toggle('cursor-not-allowed', state.currentPage === 1);
+        } else if (button.textContent?.trim() === 'Siguiente') {
+          const totalPages = Math.ceil(state.filteredProducts.length / state.itemsPerPage);
+          button.disabled = state.currentPage === totalPages;
+          button.classList.toggle('opacity-50', state.currentPage === totalPages);
+          button.classList.toggle('cursor-not-allowed', state.currentPage === totalPages);
+        } else {
+          // Actualizar estado de botones de número de página
+          const isCurrentPage = page === state.currentPage;
+          button.setAttribute('aria-current', isCurrentPage ? 'page' : 'false');
+          button.classList.toggle('text-blue-600', isCurrentPage);
+          button.classList.toggle('bg-blue-50', isCurrentPage);
+          button.classList.toggle('dark:bg-gray-700', isCurrentPage);
+          button.classList.toggle('dark:text-white', isCurrentPage);
+          button.classList.toggle('text-gray-500', !isCurrentPage);
+          button.classList.toggle('bg-white', !isCurrentPage);
+          button.classList.toggle('dark:bg-gray-800', !isCurrentPage);
+          button.classList.toggle('dark:text-gray-400', !isCurrentPage);
+        }
+      });
+    }
+  }
+
+  // Inicializar eventos
+  document.addEventListener('DOMContentLoaded', () => {
+    const tableContainer = document.getElementById(tableId);
+    if (!tableContainer) return;
+    
+    // Manejar eventos de ordenación
+    const headers = tableContainer.querySelectorAll('th[data-sort-key]');
+    headers.forEach(header => {
+      header.addEventListener('click', () => {
+        const sortKey = header.getAttribute('data-sort-key');
+        if (!sortKey) return;
+        
+        // Actualizar dirección de ordenación
+        if (state.sortKey === sortKey) {
+          state.sortDirection = state.sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+          state.sortKey = sortKey;
+          state.sortDirection = 'asc';
+        }
+        
+        renderTable();
+      });
+    });
+    
+    // Manejar eventos de paginación
+    document.addEventListener('table-page-change', (e) => {
+      const event = e as CustomEvent;
+      if (event.detail.tableId === tableId) {
+        state.currentPage = event.detail.page;
+        renderTable();
+      }
+    });
+    
+    // Renderizar tabla inicial
+    renderTable();
+  });
+</script>

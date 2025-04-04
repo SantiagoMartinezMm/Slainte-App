@@ -1,0 +1,128 @@
+---
+import { createServerClient } from '../../lib/supabase';
+
+// Manejar la redirección de autenticación
+const { searchParams } = new URL(Astro.request.url);
+const code = searchParams.get('code');
+const error = searchParams.get('error');
+const errorDescription = searchParams.get('error_description');
+
+console.log('Parámetros de autenticación:', {
+  code: code ? 'present' : 'absent',
+  error,
+  errorDescription
+});
+
+// Si hay un error, redirigir al login con el mensaje de error
+if (error || errorDescription) {
+  console.error('Error en autenticación:', { error, errorDescription });
+  return Astro.redirect(`/login?error=${encodeURIComponent(errorDescription || 'Error de autenticación')}`);
+}
+
+if (!code) {
+  console.error('No se proporcionó código de autorización');
+  return Astro.redirect('/login?error=' + encodeURIComponent('No se proporcionó código de autorización'));
+}
+
+try {
+  console.log('Intercambiando código por sesión...');
+
+  // Crear un cliente de servidor que pueda manejar cookies
+  const serverSupabase = createServerClient(Astro.cookies);
+
+  // Intercambiar el código por una sesión
+  const { data, error: sessionError } = await serverSupabase.auth.exchangeCodeForSession(code);
+
+  if (sessionError) {
+    console.error('Error al intercambiar código por sesión:', sessionError);
+    return Astro.redirect('/login?error=' + encodeURIComponent('Error al intercambiar código por sesión'));
+  }
+
+  console.log('Sesión obtenida correctamente');
+
+  if (!data?.user) {
+    console.error('No se pudo obtener información del usuario');
+    return Astro.redirect('/login?error=' + encodeURIComponent('No se pudo obtener información del usuario'));
+  }
+
+  // Verificar si el usuario tiene un perfil en la base de datos
+  console.log('Obteniendo perfil del usuario...');
+  const { data: profile, error: profileError } = await serverSupabase
+    .from('profiles')
+    .select('role')
+    .eq('id', data.user.id)
+    .single();
+
+  // Si hay un error al obtener el perfil
+  if (profileError) {
+    console.error('Error al obtener perfil:', profileError);
+
+    // Si el error es que no existe el perfil (PGRST116 = "no se encontró ningún registro")
+    if (profileError.code === 'PGRST116') {
+      try {
+        console.log('Creando perfil para el usuario...');
+
+        // Intentar crear un perfil básico para el usuario
+        await serverSupabase
+          .from('profiles')
+          .insert({
+            id: data.user.id,
+            email: data.user.email || '',
+            role: 'user',
+            updated_at: new Date().toISOString()
+          });
+
+        console.log('Perfil creado exitosamente');
+      } catch (err) {
+        console.error('Error al crear perfil:', err);
+        // Continuar aunque haya error, para no bloquear el login
+      }
+
+      // Redirigir a la página principal para usuarios nuevos
+      return Astro.redirect('/');
+    } else {
+      // Si es otro tipo de error
+      console.error('Error al obtener perfil de usuario:', profileError);
+      return Astro.redirect('/login?error=' + encodeURIComponent('Error al obtener perfil de usuario'));
+    }
+  }
+
+  console.log('Perfil obtenido:', profile);
+
+  // Redirigir según el rol (si existe)
+  const userRole = profile?.role;
+  if (userRole === 'admin') {
+    return Astro.redirect('/admin');
+  } else if (userRole === 'staff') {
+    return Astro.redirect('/dashboard');
+  }
+
+  // Si no hay rol específico o hay algún problema, redirigir a la página principal
+  return Astro.redirect('/');
+} catch (err) {
+  const error = err as Error;
+  console.error('Error inesperado en el callback:', error);
+  return Astro.redirect('/login?error=' + encodeURIComponent('Error inesperado al procesar la autenticación'));
+}
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Autenticando...</title>
+    <meta name="robots" content="noindex">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body class="bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center">
+      <div class="p-4 max-w-md w-full">
+        <div class="text-center">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <h1 class="mt-4 text-xl font-semibold text-gray-900">Procesando inicio de sesión...</h1>
+          <p class="mt-2 text-sm text-gray-600">Por favor espera mientras completamos la autenticación.</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

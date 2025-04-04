@@ -1,0 +1,44 @@
+---
+// Ejemplo de estructura base para componentes
+interface Props {
+  // Props básicas que todos los componentes deberían tener
+  class?: string;
+  id?: string;
+  // Props específicas del componente
+  variant?: 'default' | 'primary' | 'secondary';
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const {
+  class: className,
+  id,
+  variant = 'default',
+  size = 'md',
+  ...props
+} = Astro.props;
+
+// Utilidades de clase
+const baseStyles = {
+  default: 'bg-white text-gray-900',
+  primary: 'bg-primary text-white',
+  secondary: 'bg-secondary text-white',
+};
+
+const sizeStyles = {
+  sm: 'text-sm px-2 py-1',
+  md: 'text-base px-4 py-2',
+  lg: 'text-lg px-6 py-3',
+};
+---
+
+<div
+  id={id}
+  class:list={[
+    baseStyles[variant],
+    sizeStyles[size],
+    className
+  ]}
+  {...props}
+>
+  <slot />
+</div>

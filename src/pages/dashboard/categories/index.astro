@@ -1,0 +1,39 @@
+---
+import DashboardLayout from '../../../layouts/DashboardLayout.astro';
+import CategoryList from '../../../components/dashboard/CategoryList';
+import { supabase } from '../../../lib/supabase';
+
+// Obtener todas las categorías
+const { data: categories } = await supabase
+  .from('categories')
+  .select('*')
+  .order('name');
+---
+
+<DashboardLayout>
+  <h1 slot="header">Categorías</h1>
+
+  <div class="sm:flex sm:items-center">
+    <div class="sm:flex-auto">
+      <p class="mt-2 text-sm text-gray-700">
+        Lista de todas las categorías disponibles en el menú.
+      </p>
+    </div>
+    <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+      <button
+        type="button"
+        class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+      >
+        Agregar categoría
+      </button>
+    </div>
+  </div>
+
+  <div class="mt-8 flow-root">
+    <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+        <CategoryList client:load categories={categories || []} />
+      </div>
+    </div>
+  </div>
+</DashboardLayout>

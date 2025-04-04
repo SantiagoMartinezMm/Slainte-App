@@ -1,0 +1,31 @@
+---
+// src/components/table/TableCell.astro
+import type { HTMLAttributes } from 'astro/types';
+
+// Permite usarse como <td> o <th>
+type CellElement = 'td' | 'th';
+
+interface Props extends HTMLAttributes<CellElement> {
+  as?: CellElement; // Para especificar si es celda de datos o encabezado
+  class?: string;
+}
+
+const { as: Element = 'td', class: className, ...props } = Astro.props;
+
+// Estilos base para las celdas
+const baseStyles = "px-6 py-4"; // Padding estándar
+
+// Estilos específicos para celdas de encabezado (si se usa as="th")
+const headerStyles = Element === 'th' ? "font-medium text-gray-900 whitespace-nowrap dark:text-white" : "";
+---
+
+<Element
+  class:list={[
+    baseStyles,
+    headerStyles, // Se aplica solo si Element es 'th'
+    className
+  ]}
+  {...props}
+>
+  <slot />
+</Element>

@@ -1,0 +1,43 @@
+---
+// src/components/navigation/NavItem.astro
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'a'> {
+  href: string;
+  label: string;
+  icon?: string; // Para un futuro icono SVG o componente de icono
+  isActive?: boolean; // Para resaltar el item activo
+  class?: string;
+}
+
+const {
+  href,
+  label,
+  icon,
+  isActive = false,
+  class: className,
+  ...props
+} = Astro.props;
+
+// Estilos base y activos
+const baseStyles = "flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group";
+const activeStyles = isActive ? "bg-gray-200 dark:bg-gray-700" : "";
+---
+
+<li>
+  <a
+    href={href}
+    class:list={[
+      baseStyles,
+      activeStyles,
+      className
+    ]}
+    {...props}
+  >
+    {/* TODO: Añadir lógica para mostrar icono si se proporciona */}
+    {icon && <span class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white">{/* Icono aquí */}</span>}
+    <span class:list={["flex-1 whitespace-nowrap", { "ms-3": icon }]}>{label}</span>
+    {/* Podría añadirse un slot para badges o indicadores */}
+    <slot />
+  </a>
+</li>

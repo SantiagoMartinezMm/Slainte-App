@@ -1,0 +1,60 @@
+---
+import { Home, Menu, ShoppingCart, User, Search } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface Props {
+  pathname: string;
+}
+
+const { pathname } = Astro.props;
+
+const navItems = [
+  {
+    label: "Inicio",
+    href: "/",
+    icon: Home,
+  },
+  {
+    label: "Menú",
+    href: "/menu",
+    icon: Menu,
+  },
+  {
+    label: "Buscar",
+    href: "/search",
+    icon: Search,
+  },
+  {
+    label: "Carrito",
+    href: "/cart",
+    icon: ShoppingCart,
+  },
+  {
+    label: "Perfil",
+    href: "/profile",
+    icon: User,
+  },
+];
+---
+
+<div class="fixed bottom-0 left-0 right-0 z-50">
+  <div class="max-w-md mx-auto bg-white dark:bg-card shadow-lg rounded-t-xl border-t">
+    <nav class="flex justify-between">
+      {navItems.map((item) => {
+        const isActive = pathname === item.href;
+        return (
+          <a
+            href={item.href}
+            class:list={[
+              "flex flex-col items-center py-2 flex-1 transition-colors",
+              isActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
+            ]}
+          >
+            <item.icon className={cn("h-6 w-6", isActive && "fill-primary")} />
+            <span class="text-xs mt-1">{item.label}</span>
+          </a>
+        );
+      })}
+    </nav>
+  </div>
+</div>

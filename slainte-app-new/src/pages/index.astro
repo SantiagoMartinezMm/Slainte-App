@@ -1,0 +1,122 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DrinkCard from '../components/DrinkCard';
+import CategoryFilter from '../components/CategoryFilter';
+import PromotionCard from '../components/PromotionCard';
+import { createServerClient } from '../lib/supabase';
+import { useState } from 'react';
+import ExampleForm from '../components/ExampleForm.astro'; // Importar el componente ExampleForm
+import ToastProvider from '../components/notifications/ToastProvider.astro'; // Importar ToastProvider
+
+interface Drink {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  category: string;
+  alcohol: string;
+}
+
+const categories = ['Todos', 'Cocteles', 'Cervezas', 'Vinos', 'Sin Alcohol'];
+
+const [activeCategory, setActiveCategory] = useState('Todos');
+
+const drinks: Drink[] = [
+  {
+    id: 1,
+    name: 'Margarita Clásica',
+    description: 'Tequila, triple sec, jugo de limón fresco',
+    price: 12.99,
+    image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=500',
+    category: 'Cocteles',
+    alcohol: '40'
+  },
+  {
+    id: 2,
+    name: 'Mojito Cubano',
+    description: 'Ron blanco, menta fresca, lima, azúcar',
+    price: 10.99,
+    image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=500',
+    category: 'Cocteles',
+    alcohol: '30'
+  },
+  {
+    id: 3,
+    name: 'IPA Artesanal',
+    description: 'Cerveza India Pale Ale con notas cítricas',
+    price: 8.99,
+    image: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=500',
+    category: 'Cervezas',
+    alcohol: '6'
+  }
+];
+
+const promotions = [
+  {
+    id: 1,
+    title: 'Happy Hour',
+    discount: '50',
+    image: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=500'
+  },
+  {
+    id: 2,
+    title: '2x1 en Cocteles',
+    discount: '40',
+    image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=500'
+  }
+];
+
+// Verificar autenticación
+const supabase = createServerClient(Astro.cookies)
+const { data: { session } } = await supabase.auth.getSession()
+
+// Si el usuario está autenticado y está intentando acceder a la página principal,
+// redirigir al dashboard solo si la URL no tiene parámetros específicos
+const url = new URL(Astro.request.url)
+if (session && url.pathname === '/' && !url.search) {
+  return Astro.redirect('/dashboard')
+}
+
+function handleCategoryChange(category: string) {
+    setActiveCategory(category);
+}
+---
+
+<Layout title="Bar Menu - Descubre nuestras bebidas">
+  <ToastProvider /> {/* Añadir ToastProvider */}
+  <main class="container mx-auto px-4 py-8">
+    <header class="text-center mb-12">
+      <h1 class="text-4xl font-bold text-white mb-4">Nuestras Bebidas</h1>
+      <CategoryFilter
+        categories={categories}
+        activeCategory={activeCategory}
+        onCategoryChange={handleCategoryChange}
+        client:load
+      />
+    </header>
+
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">Formulario de Ejemplo</h2>
+      <ExampleForm client:load /> {/* Renderizar el componente ExampleForm */}
+    </section>
+
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">Promociones Especiales</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {promotions.map((promotion) => (
+          <PromotionCard {...promotion} />
+        ))}
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-2xl font-bold text-white mb-6">Menú de Bebidas</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {drinks.map((drink) => (
+          <DrinkCard {...drink} />
+        ))}
+      </div>
+    </section>
+  </main>
+</Layout>

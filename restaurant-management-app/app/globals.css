@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 30 33% 98%;
+    --foreground: 20 10% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 20 10% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 10% 15%;
+
+    --primary: 24 100% 56%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 35 80% 90%;
+    --secondary-foreground: 24 30% 20%;
+
+    --muted: 35 30% 96%;
+    --muted-foreground: 20 10% 40%;
+
+    --accent: 142 43% 54%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 30 10% 90%;
+    --input: 30 10% 90%;
+    --ring: 24 100% 56%;
+
+    --radius: 1rem;
+  }
+
+  .dark {
+    --background: 20 10% 10%;
+    --foreground: 0 0% 98%;
+
+    --card: 20 10% 15%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 20 10% 15%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 24 100% 56%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 35 30% 15%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 35 30% 20%;
+    --muted-foreground: 20 10% 70%;
+
+    --accent: 142 43% 54%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 20 10% 20%;
+    --input: 20 10% 20%;
+    --ring: 24 100% 56%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.food-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.food-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.category-pill {
+  transition: all 0.3s ease;
+}
+
+.category-pill:hover,
+.category-pill.active {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.promotion-card {
+  transition: transform 0.3s ease;
+}
+
+.promotion-card:hover {
+  transform: scale(1.02);
+}
+

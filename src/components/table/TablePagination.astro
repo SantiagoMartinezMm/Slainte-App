@@ -1,0 +1,151 @@
+---
+// src/components/table/TablePagination.astro
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'nav'> {
+  class?: string;
+  currentPage: number;
+  totalItems: number;
+  itemsPerPage: number;
+  maxVisiblePages?: number;
+  tableId?: string;
+}
+
+const {
+  class: className,
+  currentPage = 1,
+  totalItems = 0,
+  itemsPerPage = 10,
+  maxVisiblePages = 5,
+  tableId = 'data-table',
+  ...props
+} = Astro.props;
+
+// Calcular el número total de páginas
+const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+// Calcular el rango de elementos que se están mostrando
+const startItem = (currentPage - 1) * itemsPerPage + 1;
+const endItem = Math.min(startItem + itemsPerPage - 1, totalItems);
+
+// Generar array de páginas visibles
+function getVisiblePages(current: number, total: number, max: number) {
+  if (total <= max) {
+    // Si hay menos páginas que el máximo visible, mostrar todas
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  // Calcular el rango de páginas a mostrar
+  const half = Math.floor(max / 2);
+  let start = Math.max(current - half, 1);
+  let end = Math.min(start + max - 1, total);
+
+  // Ajustar si estamos cerca del final
+  if (end === total) {
+    start = Math.max(end - max + 1, 1);
+  }
+
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+}
+
+const visiblePages = getVisiblePages(currentPage, totalPages, maxVisiblePages);
+
+// Estilos base para el contenedor de paginación
+const baseStyles = "flex items-center justify-between pt-4";
+---
+
+<nav
+  aria-label="Table navigation"
+  class:list={[
+    baseStyles,
+    className
+  ]}
+  data-table-id={tableId}
+  {...props}
+>
+  <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
+    Mostrando <span class="font-semibold text-gray-900 dark:text-white">{startItem}-{endItem}</span> de <span class="font-semibold text-gray-900 dark:text-white">{totalItems}</span>
+  </span>
+
+  <ul class="inline-flex -space-x-px text-sm h-8">
+    <!-- Botón Anterior -->
+    <li>
+      <button
+        type="button"
+        class:list={[
+          "flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white",
+          { "opacity-50 cursor-not-allowed": currentPage === 1 }
+        ]}
+        data-page={currentPage - 1}
+        disabled={currentPage === 1}
+      >
+        Anterior
+      </button>
+    </li>
+
+    <!-- Páginas -->
+    {visiblePages.map(page => (
+      <li>
+        <button
+          type="button"
+          class:list={[
+            "flex items-center justify-center px-3 h-8 leading-tight border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:text-white",
+            {
+              "text-blue-600 bg-blue-50 dark:bg-gray-700 dark:text-white": page === currentPage,
+              "text-gray-500 bg-white dark:bg-gray-800 dark:text-gray-400": page !== currentPage
+            }
+          ]}
+          data-page={page}
+          aria-current={page === currentPage ? "page" : undefined}
+        >
+          {page}
+        </button>
+      </li>
+    ))}
+
+    <!-- Botón Siguiente -->
+    <li>
+      <button
+        type="button"
+        class:list={[
+          "flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white",
+          { "opacity-50 cursor-not-allowed": currentPage === totalPages }
+        ]}
+        data-page={currentPage + 1}
+        disabled={currentPage === totalPages}
+      >
+        Siguiente
+      </button>
+    </li>
+  </ul>
+</nav>
+
+<script define:vars={{ tableId }}>
+  // Script para manejar eventos de paginación
+  document.addEventListener('DOMContentLoaded', () => {
+    const paginationNav = document.querySelector(`nav[data-table-id="${tableId}"]`);
+
+    if (paginationNav) {
+      // Añadir event listener a todos los botones de página
+      const pageButtons = paginationNav.querySelectorAll('button[data-page]');
+
+      pageButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          if (button.disabled) return;
+
+          const page = parseInt(button.getAttribute('data-page') || '1', 10);
+
+          // Disparar evento personalizado con la página seleccionada
+          const event = new CustomEvent('table-page-change', {
+            detail: {
+              tableId,
+              page
+            },
+            bubbles: true
+          });
+          paginationNav.dispatchEvent(event);
+        });
+      });
+    }
+  });
+</script>
